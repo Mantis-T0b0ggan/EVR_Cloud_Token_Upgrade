@@ -28,13 +28,31 @@
         <input type="number" id="totalDays" required><br>
         
         <button type="button" onclick="storeData()">Next</button>
-        <button type="button" onclick="calculateAndExport()">Calculate & Export</button>
+        <button type="button" onclick="finishAndCalculate()">Finish & Calculate</button>
     </form>
+    
+    <h3>Stored Charger Information</h3>
+    <table border="1" id="storedDataTable">
+        <thead>
+            <tr>
+                <th>Station Name</th>
+                <th>Station S/N</th>
+                <th>Calculated Value</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
     
     <script>
         let storedData = [];
 
         function storeData() {
+            addCurrentEntry();
+            document.getElementById('calculatorForm').reset();
+            alert('Data stored. Enter next station details.');
+        }
+
+        function addCurrentEntry() {
             const stationName = document.getElementById('stationName').value;
             const stationSN = document.getElementById('stationSN').value;
             const initialPrice = parseFloat(document.getElementById('initialPrice').value);
@@ -47,15 +65,24 @@
                 return;
             }
 
-            const calculatedValue = (actualPayment - initialPrice) * (daysRemaining / totalDays);
+            const calculatedValue = (initialPrice - actualPayment) * (daysRemaining / totalDays);
             
             storedData.push({ stationName, stationSN, calculatedValue });
-            
-            document.getElementById('calculatorForm').reset();
-            alert('Data stored. Enter next station details.');
+            updateTable();
         }
 
-        function calculateAndExport() {
+        function updateTable() {
+            const tableBody = document.querySelector('#storedDataTable tbody');
+            tableBody.innerHTML = '';
+            storedData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>${row.calculatedValue.toFixed(2)}</td>`;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function finishAndCalculate() {
+            addCurrentEntry();
             if (storedData.length === 0) {
                 alert('No data stored. Please add at least one station.');
                 return;
@@ -73,6 +100,7 @@
             link.click();
             
             storedData = [];
+            updateTable();
             alert('Export complete. Data cleared.');
         }
     </script>
