@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloud Token Upgrade Calculator</title>
+</head>
+<body>
+    <h2>ChargePoint Cloud Token Upgrade Calculator</h2>
+    <form id="calculatorForm">
+        <label>Station Name:</label>
+        <input type="text" id="stationName" required><br>
+        
+        <label>Station Serial Number:</label>
+        <input type="text" id="stationSerial" required><br>
+        
+        <label>Station S/N:</label>
+        <input type="text" id="stationSN" required><br>
+        
+        <label>Initial Enterprise Price:</label>
+        <input type="number" id="initialPrice" required><br>
+        
+        <label>Actual Initial Payment:</label>
+        <input type="number" id="actualPayment" required><br>
+        
+        <label>Days Elapsed on Term:</label>
+        <input type="number" id="daysElapsed" required><br>
+        
+        <label>Days Remaining on Term:</label>
+        <input type="number" id="daysRemaining" required><br>
+        
+        <label>Total Length of Days on Term:</label>
+        <input type="number" id="totalDays" required><br>
+        
+        <button type="button" onclick="calculateAndExport()">Calculate & Export</button>
+    </form>
+    
+    <script>
+        function calculateAndExport() {
+            const stationName = document.getElementById('stationName').value;
+            const stationSerial = document.getElementById('stationSerial').value;
+            const stationSN = document.getElementById('stationSN').value;
+            const initialPrice = parseFloat(document.getElementById('initialPrice').value);
+            const actualPayment = parseFloat(document.getElementById('actualPayment').value);
+            const daysRemaining = parseFloat(document.getElementById('daysRemaining').value);
+            const totalDays = parseFloat(document.getElementById('totalDays').value);
+
+            if (isNaN(initialPrice) || isNaN(actualPayment) || isNaN(daysRemaining) || isNaN(totalDays)) {
+                alert('Please enter valid numeric values');
+                return;
+            }
+
+            const calculatedValue = (actualPayment - initialPrice) * (daysRemaining / totalDays);
+            
+            const csvContent = `Station Name,Station Serial Number,Station S/N,Calculated Value\n${stationName},${stationSerial},${stationSN},${calculatedValue.toFixed(2)}`;
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'calculated_results.csv';
+            link.click();
+        }
+    </script>
+</body>
+</html>
