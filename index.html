@@ -12,20 +12,19 @@
         <label>Station S/N:</label>
         <input type="text" id="stationSN" required><br>
         
-        <label>Initial Enterprise Price:</label>
-        <input type="number" id="initialPrice" required><br>
+        <label>Old Plan Start Date:</label>
+        <input type="text" id="oldPlanStartDateText" placeholder="YYYY-MM-DD" oninput="syncDateInput('oldPlanStartDateText', 'oldPlanStartDate')">
+        <input type="date" id="oldPlanStartDate" oninput="syncTextInput('oldPlanStartDate', 'oldPlanStartDateText')" required><br>
         
-        <label>Actual Initial Payment:</label>
-        <input type="number" id="actualPayment" required><br>
+        <label>Old Plan Expiration Date:</label>
+        <input type="text" id="oldPlanExpirationDateText" placeholder="YYYY-MM-DD" oninput="syncDateInput('oldPlanExpirationDateText', 'oldPlanExpirationDate')">
+        <input type="date" id="oldPlanExpirationDate" oninput="syncTextInput('oldPlanExpirationDate', 'oldPlanExpirationDateText')" required><br>
         
-        <label>Days Elapsed on Term:</label>
-        <input type="number" id="daysElapsed" required><br>
+        <label>Old Plan Price:</label>
+        <input type="number" id="oldPlanPrice" required><br>
         
-        <label>Days Remaining on Term:</label>
-        <input type="number" id="daysRemaining" required><br>
-        
-        <label>Total Length of Days on Term:</label>
-        <input type="number" id="totalDays" required><br>
+        <label>New Plan Price:</label>
+        <input type="number" id="newPlanPrice" required><br>
         
         <button type="button" onclick="storeData()">Next</button>
         <button type="button" onclick="finishAndCalculate()">Finish & Calculate</button>
@@ -37,7 +36,7 @@
             <tr>
                 <th>Station Name</th>
                 <th>Station S/N</th>
-                <th>Calculated Value</th>
+                <th>Final Upgrade Cost</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -45,6 +44,14 @@
     
     <script>
         let storedData = [];
+
+        function syncDateInput(textId, dateId) {
+            document.getElementById(dateId).value = document.getElementById(textId).value;
+        }
+
+        function syncTextInput(dateId, textId) {
+            document.getElementById(textId).value = document.getElementById(dateId).value;
+        }
 
         function storeData() {
             addCurrentEntry();
@@ -55,19 +62,32 @@
         function addCurrentEntry() {
             const stationName = document.getElementById('stationName').value;
             const stationSN = document.getElementById('stationSN').value;
-            const initialPrice = parseFloat(document.getElementById('initialPrice').value);
-            const actualPayment = parseFloat(document.getElementById('actualPayment').value);
-            const daysRemaining = parseFloat(document.getElementById('daysRemaining').value);
-            const totalDays = parseFloat(document.getElementById('totalDays').value);
-
-            if (isNaN(initialPrice) || isNaN(actualPayment) || isNaN(daysRemaining) || isNaN(totalDays)) {
+            const oldPlanStartDate = new Date(document.getElementById('oldPlanStartDate').value);
+            const oldPlanExpirationDate = new Date(document.getElementById('oldPlanExpirationDate').value);
+            const oldPlanPrice = parseFloat(document.getElementById('oldPlanPrice').value);
+            const newPlanPrice = parseFloat(document.getElementById('newPlanPrice').value);
+            
+            if (isNaN(oldPlanPrice) || isNaN(newPlanPrice)) {
                 alert('Please enter valid numeric values');
                 return;
             }
 
-            const calculatedValue = (initialPrice - actualPayment) * (daysRemaining / totalDays);
-            
-            storedData.push({ stationName, stationSN, calculatedValue });
+            const today = new Date();
+            const totalDays = Math.ceil((oldPlanExpirationDate - oldPlanStartDate) / (1000 * 60 * 60 * 24));
+            const elapsedDays = Math.ceil((today - oldPlanStartDate) / (1000 * 60 * 60 * 24));
+            const remainingDays = totalDays - elapsedDays;
+
+            if (remainingDays <= 0) {
+                alert('The plan has already expired or is invalid.');
+                return;
+            }
+
+            // Calculate Prorated Costs
+            const proratedNewPlanCost = newPlanPrice * (remainingDays / totalDays);
+            const proratedOldPlanRefund = oldPlanPrice * (remainingDays / totalDays);
+            const finalUpgradeCost = proratedNewPlanCost - proratedOldPlanRefund;
+
+            storedData.push({ stationName, stationSN, finalUpgradeCost });
             updateTable();
         }
 
@@ -76,7 +96,7 @@
             tableBody.innerHTML = '';
             storedData.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>${row.calculatedValue.toFixed(2)}</td>`;
+                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>${row.finalUpgradeCost.toFixed(2)}</td>`;
                 tableBody.appendChild(tr);
             });
         }
@@ -88,9 +108,9 @@
                 return;
             }
             
-            let csvContent = "Station Name,Station S/N,Calculated Value\n";
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost\n";
             storedData.forEach(row => {
-                csvContent += `${row.stationName},${row.stationSN},${row.calculatedValue.toFixed(2)}\n`;
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost.toFixed(2)}\n`;
             });
             
             const blob = new Blob([csvContent], { type: 'text/csv' });
