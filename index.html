@@ -9,9 +9,6 @@
         <label>Station Name:</label>
         <input type="text" id="stationName" required><br>
         
-        <label>Station Serial Number:</label>
-        <input type="text" id="stationSerial" required><br>
-        
         <label>Station S/N:</label>
         <input type="text" id="stationSN" required><br>
         
@@ -30,13 +27,15 @@
         <label>Total Length of Days on Term:</label>
         <input type="number" id="totalDays" required><br>
         
+        <button type="button" onclick="storeData()">Next</button>
         <button type="button" onclick="calculateAndExport()">Calculate & Export</button>
     </form>
     
     <script>
-        function calculateAndExport() {
+        let storedData = [];
+
+        function storeData() {
             const stationName = document.getElementById('stationName').value;
-            const stationSerial = document.getElementById('stationSerial').value;
             const stationSN = document.getElementById('stationSN').value;
             const initialPrice = parseFloat(document.getElementById('initialPrice').value);
             const actualPayment = parseFloat(document.getElementById('actualPayment').value);
@@ -50,13 +49,31 @@
 
             const calculatedValue = (actualPayment - initialPrice) * (daysRemaining / totalDays);
             
-            const csvContent = `Station Name,Station Serial Number,Station S/N,Calculated Value\n${stationName},${stationSerial},${stationSN},${calculatedValue.toFixed(2)}`;
+            storedData.push({ stationName, stationSN, calculatedValue });
+            
+            document.getElementById('calculatorForm').reset();
+            alert('Data stored. Enter next station details.');
+        }
+
+        function calculateAndExport() {
+            if (storedData.length === 0) {
+                alert('No data stored. Please add at least one station.');
+                return;
+            }
+            
+            let csvContent = "Station Name,Station S/N,Calculated Value\n";
+            storedData.forEach(row => {
+                csvContent += `${row.stationName},${row.stationSN},${row.calculatedValue.toFixed(2)}\n`;
+            });
             
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'calculated_results.csv';
             link.click();
+            
+            storedData = [];
+            alert('Export complete. Data cleared.');
         }
     </script>
 </body>
