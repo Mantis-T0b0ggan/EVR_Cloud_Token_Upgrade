@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cloud Token Upgrade Calculator</title>
+    <title>EV Ready Cloud Token Upgrade Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-            text-align: center;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
         .container {
             background: white;
@@ -15,19 +19,24 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             max-width: 500px;
-            margin: auto;
+            width: 100%;
+            text-align: center;
         }
         label {
             display: block;
             margin-top: 10px;
             font-weight: bold;
+            text-align: left;
         }
         input {
-            width: 100%;
+            width: calc(100% - 20px);
             padding: 8px;
             margin-top: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         button {
             background-color: #007bff;
@@ -74,15 +83,15 @@
             <input type="text" id="stationSN" required>
             
             <label>Current Plan Start Date:</label>
-            <input type="text" id="oldPlanStartDateText" placeholder=DD-MM-YYYY oninput="syncDateInput('oldPlanStartDateText', 'oldPlanStartDate')">
-            <input type="date" id="oldPlanStartDate" oninput="syncTextInput('oldPlanStartDate', 'oldPlanStartDateText')" required>
+            <input type="text" id="currentPlanStartDateText" placeholder="DD-MM-YYYY" oninput="syncDateInput('currentPlanStartDateText', 'currentPlanStartDate')">
+            <input type="date" id="currentPlanStartDate" oninput="syncTextInput('currentPlanStartDate', 'currentPlanStartDateText')" required>
             
             <label>Current Plan Expiration Date:</label>
-            <input type="text" id="oldPlanExpirationDateText" placeholder=DD-MM-YYYY oninput="syncDateInput('oldPlanExpirationDateText', 'oldPlanExpirationDate')">
-            <input type="date" id="oldPlanExpirationDate" oninput="syncTextInput('oldPlanExpirationDate', 'oldPlanExpirationDateText')" required>
+            <input type="text" id="currentPlanExpirationDateText" placeholder="DD-MM-YYYY" oninput="syncDateInput('currentPlanExpirationDateText', 'currentPlanExpirationDate')">
+            <input type="date" id="currentPlanExpirationDate" oninput="syncTextInput('currentPlanExpirationDate', 'currentPlanExpirationDateText')" required>
             
             <label>Current Plan Price:</label>
-            <input type="number" id="oldPlanPrice" required>
+            <input type="number" id="currentPlanPrice" required>
             
             <label>New Plan Price:</label>
             <input type="number" id="newPlanPrice" required>
@@ -105,64 +114,5 @@
             <tbody></tbody>
         </table>
     </div>
-    
-    <script>
-        let storedData = [];
-
-        function syncDateInput(textId, dateId) {
-            document.getElementById(dateId).value = document.getElementById(textId).value;
-        }
-
-        function syncTextInput(dateId, textId) {
-            document.getElementById(textId).value = document.getElementById(dateId).value;
-        }
-
-        function storeData() {
-            addCurrentEntry();
-            document.getElementById('calculatorForm').reset();
-            alert('Data stored. Enter next station details.');
-        }
-
-        function addCurrentEntry() {
-            const stationName = document.getElementById('stationName').value;
-            const stationSN = document.getElementById('stationSN').value;
-            const oldPlanStartDate = new Date(document.getElementById('oldPlanStartDate').value);
-            const oldPlanExpirationDate = new Date(document.getElementById('oldPlanExpirationDate').value);
-            const oldPlanPrice = parseFloat(document.getElementById('oldPlanPrice').value);
-            const newPlanPrice = parseFloat(document.getElementById('newPlanPrice').value);
-            
-            if (isNaN(oldPlanPrice) || isNaN(newPlanPrice)) {
-                alert('Please enter valid numeric values');
-                return;
-            }
-
-            const today = new Date();
-            const totalDays = Math.ceil((oldPlanExpirationDate - oldPlanStartDate) / (1000 * 60 * 60 * 24));
-            const elapsedDays = Math.ceil((today - oldPlanStartDate) / (1000 * 60 * 60 * 24));
-            const remainingDays = totalDays - elapsedDays;
-
-            if (remainingDays <= 0) {
-                alert('The plan has already expired or is invalid.');
-                return;
-            }
-
-            const proratedNewPlanCost = newPlanPrice * (remainingDays / totalDays);
-            const proratedOldPlanRefund = oldPlanPrice * (remainingDays / totalDays);
-            const finalUpgradeCost = proratedNewPlanCost - proratedOldPlanRefund;
-
-            storedData.push({ stationName, stationSN, finalUpgradeCost });
-            updateTable();
-        }
-
-        function updateTable() {
-            const tableBody = document.querySelector('#storedDataTable tbody');
-            tableBody.innerHTML = '';
-            storedData.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>$${row.finalUpgradeCost.toFixed(2)}</td>`;
-                tableBody.appendChild(tr);
-            });
-        }
-    </script>
 </body>
 </html>
