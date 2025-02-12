@@ -109,7 +109,7 @@
 </head>
 <body>
     <div class="container">
-        <img src="logo.png" alt="Company Logo" class="logo">
+        <img src="/mnt/data/logo.png" alt="Company Logo" class="logo">
         <h2>EV Ready Cloud Token Upgrade Calculator</h2>
         <div class="progress">
             <div class="progress-bar" id="progressBar"></div>
@@ -172,6 +172,7 @@
         }
 
         function storeData() {
+            document.getElementById('calculatorForm').reset();
             const stationName = document.getElementById('stationName').value;
             const stationSN = document.getElementById('stationSN').value;
             const startDate = new Date(document.getElementById('currentPlanStartDate').value);
@@ -196,6 +197,29 @@
                 tableBody.appendChild(tr);
             });
             document.getElementById('totalUpgradeCost').innerText = `$${totalCost.toFixed(2)}`;
+        }
+            function finishAndCalculate() {
+            if (storedData.length === 0) {
+                alert('No data stored. Please add at least one station.');
+                return;
+            }
+            
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost
+";
+            storedData.forEach(row => {
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}
+`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'calculated_results.csv';
+            link.click();
+            
+            storedData = [];
+            updateTable();
+            alert('Export complete. Data cleared.');
         }
     </script>
 </body>
