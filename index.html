@@ -143,12 +143,16 @@
 
         function storeData() {
             addCurrentEntry();
-            document.getElementById('calculatorForm').reset();
         }
 
         function addCurrentEntry() {
             const stationName = document.getElementById('stationName').value;
             const stationSN = document.getElementById('stationSN').value;
+            if (!stationName || !stationSN) {
+                alert("Please fill out all required fields.");
+                return;
+            }
+            
             const finalUpgradeCost = calculateUpgradeCost(
                 parseFloat(document.getElementById('currentPlanPrice').value),
                 parseFloat(document.getElementById('newPlanPrice').value),
@@ -158,6 +162,7 @@
             );
             storedData.push({ stationName, stationSN, finalUpgradeCost });
             updateTable();
+            document.getElementById('calculatorForm').reset();
         }
 
         function updateTable() {
@@ -171,25 +176,6 @@
                 tableBody.appendChild(tr);
             });
             document.getElementById('totalUpgradeCost').innerText = `$${totalCost.toFixed(2)}`;
-        }
-        
-        function finishAndCalculate() {
-            if (storedData.length === 0) {
-                alert('No data stored. Please add at least one station.');
-                return;
-            }
-            let csvContent = "Station Name,Station S/N,Final Upgrade Cost\n";
-            storedData.forEach(row => {
-                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}\n`;
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'calculated_results.csv';
-            link.click();
-            storedData = [];
-            updateTable();
-            alert('Export complete. Data cleared.');
         }
     </script>
 </body>
