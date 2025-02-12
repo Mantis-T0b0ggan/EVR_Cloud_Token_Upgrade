@@ -89,20 +89,36 @@
             color: green;
             font-weight: bold;
         }
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #444f5a;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="logo.png" alt="Company Logo" class="logo">
+        <img src="/mnt/data/logo.png" alt="Company Logo" class="logo">
         <h2>EV Ready Cloud Token Upgrade Calculator</h2>
         <div class="progress">
             <div class="progress-bar" id="progressBar"></div>
         </div>
         <form id="calculatorForm">
-            <label>Station Name:<span>Enter the charger station name.</span></label>
+            <label>Station Name:</label>
             <input type="text" id="stationName" required>
             
-            <label>Station S/N:<span>Enter the serial number of the charger.</span></label>
+            <label>Station S/N:</label>
             <input type="text" id="stationSN" required>
             
             <label>Current Plan Start Date:</label>
@@ -126,7 +142,23 @@
         <p class="success-message" id="successMessage">Calculation complete! Downloading results...</p>
     </div>
     
+    <div class="container">
+        <h3>Stored Charger Information</h3>
+        <table id="storedDataTable">
+            <thead>
+                <tr>
+                    <th>Station Name</th>
+                    <th>Station S/N</th>
+                    <th>Final Upgrade Cost</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
     <script>
+        let storedData = [];
+
         function updateProgress(progress) {
             document.getElementById('progressBar').style.width = progress + '%';
         }
@@ -136,6 +168,25 @@
             document.getElementById('calculatorForm').reset();
             alert('Data stored. Enter next station details.');
             updateProgress(50);
+        }
+        
+        function addCurrentEntry() {
+            const stationName = document.getElementById('stationName').value;
+            const stationSN = document.getElementById('stationSN').value;
+            const finalUpgradeCost = "$999"; // Placeholder value, replace with actual calculation logic
+            
+            storedData.push({ stationName, stationSN, finalUpgradeCost });
+            updateTable();
+        }
+
+        function updateTable() {
+            const tableBody = document.querySelector('#storedDataTable tbody');
+            tableBody.innerHTML = '';
+            storedData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>${row.finalUpgradeCost}</td>`;
+                tableBody.appendChild(tr);
+            });
         }
         
         function finishAndCalculate() {
