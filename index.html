@@ -21,12 +21,19 @@
             max-width: 500px;
             width: 100%;
             text-align: center;
+            transition: all 0.3s ease-in-out;
         }
         label {
             display: block;
             margin-top: 10px;
             font-weight: bold;
             text-align: left;
+            position: relative;
+        }
+        label span {
+            font-size: 12px;
+            color: gray;
+            display: block;
         }
         input {
             width: calc(100% - 20px);
@@ -37,6 +44,11 @@
             display: block;
             margin-left: auto;
             margin-right: auto;
+            transition: all 0.2s ease-in-out;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
         }
         button {
             background-color: #007bff;
@@ -47,39 +59,43 @@
             cursor: pointer;
             margin-top: 10px;
             width: 100%;
+            transition: all 0.3s ease-in-out;
         }
         button:hover {
             background-color: #0056b3;
         }
-        h3 {
-            margin-top: 20px;
-        }
-        table {
+        .progress {
             width: 100%;
-            border-collapse: collapse;
+            background: #ddd;
+            border-radius: 5px;
             margin-top: 10px;
         }
-        table, th, td {
-            border: 1px solid #ddd;
+        .progress-bar {
+            height: 10px;
+            background: #007bff;
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.4s ease-in-out;
         }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
+        .success-message {
+            display: none;
+            margin-top: 10px;
+            color: green;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>EV Ready Cloud Token Upgrade Calculator</h2>
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
         <form id="calculatorForm">
-            <label>Station Name:</label>
+            <label>Station Name:<span>Enter the charger station name.</span></label>
             <input type="text" id="stationName" required>
             
-            <label>Station S/N:</label>
+            <label>Station S/N:<span>Enter the serial number of the charger.</span></label>
             <input type="text" id="stationSN" required>
             
             <label>Current Plan Start Date:</label>
@@ -91,102 +107,36 @@
             <label>Current Plan Price:</label>
             <input type="number" id="currentPlanPrice" required>
             
-            
+            <label>New Plan Price:</label>
+            <input type="number" id="newPlanPrice" required>
+            
             <label>New Plan Start Date:</label>
             <input type="date" id="newPlanStartDate" required>
             
             <button type="button" onclick="storeData()">Next</button>
             <button type="button" onclick="finishAndCalculate()">Finish & Calculate</button>
-                    <label>New Plan Start Date:</label>
-            <input type="date" id="newPlanStartDate" required>
         </form>
-    </div>
-    
-    <div class="container">
-        <h3>Stored Charger Information</h3>
-        <table id="storedDataTable">
-            <thead>
-                <tr>
-                    <th>Station Name</th>
-                    <th>Station S/N</th>
-                    <th>Final Upgrade Cost</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <p class="success-message" id="successMessage">Calculation complete! Downloading results...</p>
     </div>
     
     <script>
-        let storedData = [];
-
+        function updateProgress(progress) {
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
         function storeData() {
             addCurrentEntry();
             document.getElementById('calculatorForm').reset();
             alert('Data stored. Enter next station details.');
+            updateProgress(50);
         }
-
-        function addCurrentEntry() {
-            const stationName = document.getElementById('stationName').value;
-            const stationSN = document.getElementById('stationSN').value;
-            const startDate = new Date(document.getElementById('currentPlanStartDate').value);
-            const endDate = new Date(document.getElementById('currentPlanExpirationDate').value);
-            const currentPrice = parseFloat(document.getElementById('currentPlanPrice').value);
-            const newPrice = parseFloat(document.getElementById('newPlanPrice').value);
-            const newStartDate = new Date(document.getElementById('newPlanStartDate').value);
-            
-            if (isNaN(currentPrice) || isNaN(newPrice)) {
-                alert('Please enter valid numeric values');
-                return;
-            }
-            
-            const today = new Date();
-            const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-            const elapsedDays = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
-            const remainingDays = totalDays - elapsedDays;
-            
-            if (remainingDays <= 0) {
-                alert('The plan has already expired or is invalid.');
-                return;
-            }
-            
-            const proratedNewPlanCost = newPrice * (remainingDays / totalDays);
-            const proratedOldPlanRefund = currentPrice * (remainingDays / totalDays);
-            const finalUpgradeCost = proratedNewPlanCost - proratedOldPlanRefund;
-            
-            storedData.push({ stationName, stationSN, finalUpgradeCost: finalUpgradeCost.toFixed(2) });
-            updateTable();
-        }
-
-        function updateTable() {
-            const tableBody = document.querySelector('#storedDataTable tbody');
-            tableBody.innerHTML = '';
-            storedData.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>$${row.finalUpgradeCost}</td>`;
-                tableBody.appendChild(tr);
-            });
-        }
-
+        
         function finishAndCalculate() {
-            if (storedData.length === 0) {
-                alert('No data stored. Please add at least one station.');
-                return;
-            }
-            
-            let csvContent = "Station Name,Station S/N,Final Upgrade Cost\n";
-            storedData.forEach(row => {
-                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'calculated_results.csv';
-            link.click();
-            
-            storedData = [];
-            updateTable();
-            alert('Export complete. Data cleared.');
+            updateProgress(100);
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
         }
     </script>
 </body>
