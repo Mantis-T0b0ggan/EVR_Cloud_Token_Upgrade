@@ -141,14 +141,6 @@
     <script>
         let storedData = [];
 
-        function calculateUpgradeCost(currentPrice, newPrice, startDate, expirationDate, newStartDate) {
-            let totalDays = (expirationDate - startDate) / (1000 * 60 * 60 * 24);
-            let remainingDays = (expirationDate - newStartDate) / (1000 * 60 * 60 * 24);
-            let proratedNewCost = newPrice * (remainingDays / totalDays);
-            let proratedRefund = currentPrice * (remainingDays / totalDays);
-            return (proratedNewCost - proratedRefund).toFixed(2);
-        }
-
         function storeData() {
             addCurrentEntry();
             document.getElementById('calculatorForm').reset();
@@ -180,25 +172,21 @@
             });
             document.getElementById('totalUpgradeCost').innerText = `$${totalCost.toFixed(2)}`;
         }
-            function finishAndCalculate() {
+        
+        function finishAndCalculate() {
             if (storedData.length === 0) {
                 alert('No data stored. Please add at least one station.');
                 return;
             }
-            
-            let csvContent = "Station Name,Station S/N,Final Upgrade Cost
-";
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost\n";
             storedData.forEach(row => {
-                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}
-`;
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}\n`;
             });
-            
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'calculated_results.csv';
             link.click();
-            
             storedData = [];
             updateTable();
             alert('Export complete. Data cleared.');
