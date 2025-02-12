@@ -155,12 +155,12 @@
             let proratedNewCost = newPlanPrice * (remainingDays / totalDays);
             let proratedRefund = currentPlanPrice * (remainingDays / totalDays);
             const finalUpgradeCost = (proratedNewCost - proratedRefund).toFixed(2);
-            storedData.push({ stationName, stationSN, finalUpgradeCost: finalUpgradeCost.toFixed(2) });
+            
+            storedData.push({ stationName, stationSN, finalUpgradeCost });
             updateTable();
             document.getElementById('calculatorForm').reset();
         }
-
-        function updateTable() {
+            function updateTable() {
             let totalCost = 0;
             const tableBody = document.querySelector('#storedDataTable tbody');
             tableBody.innerHTML = '';
@@ -172,15 +172,16 @@
             });
             document.getElementById('totalUpgradeCost').innerText = `$${totalCost.toFixed(2)}`;
         }
-
-        function finishAndCalculate() {
+            function finishAndCalculate() {
             if (storedData.length === 0) {
                 alert('No data stored. Please add at least one station.');
                 return;
             }
-            let csvContent = "Station Name,Station S/N,Final Upgrade Cost\n";
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost
+";
             storedData.forEach(row => {
-                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}\n`;
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}
+`;
             });
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const link = document.createElement('a');
