@@ -5,13 +5,14 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #444f5a;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
+            color: white;
         }
         .container {
             background: white;
@@ -22,6 +23,11 @@
             width: 100%;
             text-align: center;
             transition: all 0.3s ease-in-out;
+            color: black;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
         }
         label {
             display: block;
@@ -47,11 +53,11 @@
             transition: all 0.2s ease-in-out;
         }
         input:focus {
-            border-color: #007bff;
+            border-color: #444f5a;
             outline: none;
         }
         button {
-            background-color: #007bff;
+            background-color: #444f5a;
             color: white;
             padding: 10px;
             border: none;
@@ -62,7 +68,7 @@
             transition: all 0.3s ease-in-out;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #363e47;
         }
         .progress {
             width: 100%;
@@ -72,7 +78,7 @@
         }
         .progress-bar {
             height: 10px;
-            background: #007bff;
+            background: #444f5a;
             width: 0%;
             border-radius: 5px;
             transition: width 0.4s ease-in-out;
@@ -87,6 +93,7 @@
 </head>
 <body>
     <div class="container">
+        <img src="logo.png" alt="Company Logo" class="logo">
         <h2>EV Ready Cloud Token Upgrade Calculator</h2>
         <div class="progress">
             <div class="progress-bar" id="progressBar"></div>
