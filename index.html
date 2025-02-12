@@ -65,7 +65,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>ChargePoint Cloud Token Upgrade Calculator</h2>
+        <h2>EV Ready Cloud Token Upgrade Calculator</h2>
         <form id="calculatorForm">
             <label>Station Name:</label>
             <input type="text" id="stationName" required>
@@ -73,15 +73,15 @@
             <label>Station S/N:</label>
             <input type="text" id="stationSN" required>
             
-            <label>Old Plan Start Date:</label>
-            <input type="text" id="oldPlanStartDateText" placeholder="YYYY-MM-DD" oninput="syncDateInput('oldPlanStartDateText', 'oldPlanStartDate')">
+            <label>Current Plan Start Date:</label>
+            <input type="text" id="oldPlanStartDateText" placeholder=\"DD-MM-YYYY\" oninput="syncDateInput('oldPlanStartDateText', 'oldPlanStartDate')">
             <input type="date" id="oldPlanStartDate" oninput="syncTextInput('oldPlanStartDate', 'oldPlanStartDateText')" required>
             
-            <label>Old Plan Expiration Date:</label>
-            <input type="text" id="oldPlanExpirationDateText" placeholder="YYYY-MM-DD" oninput="syncDateInput('oldPlanExpirationDateText', 'oldPlanExpirationDate')">
+            <label>Current Plan Expiration Date:</label>
+            <input type="text" id="oldPlanExpirationDateText" placeholder=\"DD-MM-YYYY\" oninput="syncDateInput('oldPlanExpirationDateText', 'oldPlanExpirationDate')">
             <input type="date" id="oldPlanExpirationDate" oninput="syncTextInput('oldPlanExpirationDate', 'oldPlanExpirationDateText')" required>
             
-            <label>Old Plan Price:</label>
+            <label>Current Plan Price:</label>
             <input type="number" id="oldPlanPrice" required>
             
             <label>New Plan Price:</label>
