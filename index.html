@@ -180,6 +180,29 @@
             });
             document.getElementById('totalUpgradeCost').innerText = `$${totalCost.toFixed(2)}`;
         }
+            function finishAndCalculate() {
+            if (storedData.length === 0) {
+                alert('No data stored. Please add at least one station.');
+                return;
+            }
+            
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost
+";
+            storedData.forEach(row => {
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}
+`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'calculated_results.csv';
+            link.click();
+            
+            storedData = [];
+            updateTable();
+            alert('Export complete. Data cleared.');
+        }
     </script>
 </body>
 </html>
