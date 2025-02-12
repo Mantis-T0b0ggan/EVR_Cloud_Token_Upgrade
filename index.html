@@ -83,12 +83,10 @@
             <input type="text" id="stationSN" required>
             
             <label>Current Plan Start Date:</label>
-            <input type="text" id="currentPlanStartDateText" placeholder="DD-MM-YYYY" oninput="syncDateInput('currentPlanStartDateText', 'currentPlanStartDate')">
-            <input type="date" id="currentPlanStartDate" placeholder="DD-MM-YYYY" oninput="syncTextInput('currentPlanStartDate', 'currentPlanStartDateText')" required>
+            <input type="date" id="currentPlanStartDate" required>
             
             <label>Current Plan Expiration Date:</label>
-            <input type="text" id="currentPlanExpirationDateText" placeholder="DD-MM-YYYY" oninput="syncDateInput('currentPlanExpirationDateText', 'currentPlanExpirationDate')">
-            <input type="date" id="currentPlanExpirationDate" placeholder="DD-MM-YYYY" oninput="syncTextInput('currentPlanExpirationDate', 'currentPlanExpirationDateText')" required>
+            <input type="date" id="currentPlanExpirationDate" required>
             
             <label>Current Plan Price:</label>
             <input type="number" id="currentPlanPrice" required>
@@ -98,6 +96,8 @@
             
             <button type="button" onclick="storeData()">Next</button>
             <button type="button" onclick="finishAndCalculate()">Finish & Calculate</button>
+                    <label>New Plan Start Date:</label>
+            <input type="date" id="newPlanStartDate" required>
         </form>
     </div>
     
@@ -131,6 +131,7 @@
             const endDate = new Date(document.getElementById('currentPlanExpirationDate').value);
             const currentPrice = parseFloat(document.getElementById('currentPlanPrice').value);
             const newPrice = parseFloat(document.getElementById('newPlanPrice').value);
+            const newStartDate = new Date(document.getElementById('newPlanStartDate').value);
             
             if (isNaN(currentPrice) || isNaN(newPrice)) {
                 alert('Please enter valid numeric values');
@@ -163,6 +164,28 @@
                 tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>$${row.finalUpgradeCost}</td>`;
                 tableBody.appendChild(tr);
             });
+        }
+
+        function finishAndCalculate() {
+            if (storedData.length === 0) {
+                alert('No data stored. Please add at least one station.');
+                return;
+            }
+            
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost\n";
+            storedData.forEach(row => {
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'calculated_results.csv';
+            link.click();
+            
+            storedData = [];
+            updateTable();
+            alert('Export complete. Data cleared.');
         }
     </script>
 </body>
