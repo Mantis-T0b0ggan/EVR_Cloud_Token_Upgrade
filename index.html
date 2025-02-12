@@ -163,5 +163,73 @@
             </tr>
         </table>
     </div>
+    <script>
+        let storedData = [];
+
+        function calculateUpgradeCost(currentPrice, newPrice, startDate, expirationDate, newStartDate) {
+            let totalDays = (expirationDate - startDate) / (1000 * 60 * 60 * 24);
+            let remainingDays = (expirationDate - newStartDate) / (1000 * 60 * 60 * 24);
+            let proratedNewCost = newPrice * (remainingDays / totalDays);
+            let proratedRefund = currentPrice * (remainingDays / totalDays);
+            return (proratedNewCost - proratedRefund).toFixed(2);
+        }
+
+        function storeData() {
+            const stationName = document.getElementById('stationName').value;
+            const stationSN = document.getElementById('stationSN').value;
+            const startDate = new Date(document.getElementById('currentPlanStartDate').value);
+            const expirationDate = new Date(document.getElementById('currentPlanExpirationDate').value);
+            const newStartDate = new Date(document.getElementById('newPlanStartDate').value);
+            const currentPrice = parseFloat(document.getElementById('currentPlanPrice').value);
+            const newPrice = parseFloat(document.getElementById('newPlanPrice').value);
+            
+            if (isNaN(currentPrice) || isNaN(newPrice)) {
+                alert('Please enter valid numeric values');
+                return;
+            }
+
+            const finalUpgradeCost = calculateUpgradeCost(currentPrice, newPrice, startDate, expirationDate, newStartDate);
+            storedData.push({ stationName, stationSN, finalUpgradeCost });
+            updateTable();
+            document.getElementById('calculatorForm').reset();
+        }
+
+        function updateTable() {
+            let totalCost = 0;
+            const tableBody = document.querySelector('#storedDataTable tbody');
+            tableBody.innerHTML = '';
+            storedData.forEach(row => {
+                totalCost += parseFloat(row.finalUpgradeCost);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>$${row.finalUpgradeCost}</td>`;
+                tableBody.appendChild(tr);
+            });
+            document.getElementById('totalUpgradeCost').innerText = `$${totalCost.toFixed(2)}`;
+        }
+
+        function finishAndCalculate() {
+            if (storedData.length === 0) {
+                alert('No data stored. Please add at least one station.');
+                return;
+            }
+            
+            let csvContent = "Station Name,Station S/N,Final Upgrade Cost
+";
+            storedData.forEach(row => {
+                csvContent += `${row.stationName},${row.stationSN},${row.finalUpgradeCost}
+`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'calculated_results.csv';
+            link.click();
+            
+            storedData = [];
+            updateTable();
+            alert('Export complete. Data cleared.');
+        }
+    </script>
 </body>
 </html>
