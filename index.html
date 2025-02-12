@@ -144,7 +144,17 @@
         function storeData() {
             const stationName = document.getElementById('stationName').value;
             const stationSN = document.getElementById('stationSN').value;
-            const finalUpgradeCost = parseFloat(document.getElementById('newPlanPrice').value) - parseFloat(document.getElementById('currentPlanPrice').value);
+            const currentPlanPrice = parseFloat(document.getElementById('currentPlanPrice').value);
+            const newPlanPrice = parseFloat(document.getElementById('newPlanPrice').value);
+            const startDate = new Date(document.getElementById('currentPlanStartDate').value);
+            const expirationDate = new Date(document.getElementById('currentPlanExpirationDate').value);
+            const newStartDate = new Date(document.getElementById('newPlanStartDate').value);
+            
+            let totalDays = (expirationDate - startDate) / (1000 * 60 * 60 * 24);
+            let remainingDays = (expirationDate - newStartDate) / (1000 * 60 * 60 * 24);
+            let proratedNewCost = newPlanPrice * (remainingDays / totalDays);
+            let proratedRefund = currentPlanPrice * (remainingDays / totalDays);
+            const finalUpgradeCost = (proratedNewCost - proratedRefund).toFixed(2);
             storedData.push({ stationName, stationSN, finalUpgradeCost: finalUpgradeCost.toFixed(2) });
             updateTable();
             document.getElementById('calculatorForm').reset();
