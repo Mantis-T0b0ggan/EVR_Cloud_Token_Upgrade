@@ -118,14 +118,6 @@
     <script>
         let storedData = [];
 
-        function syncDateInput(textId, dateId) {
-            document.getElementById(dateId).value = document.getElementById(textId).value.split("-").reverse().join("-");
-        }
-
-        function syncTextInput(dateId, textId) {
-            document.getElementById(textId).value = document.getElementById(dateId).value.split("-").reverse().join("-");
-        }
-
         function storeData() {
             addCurrentEntry();
             document.getElementById('calculatorForm').reset();
@@ -135,9 +127,31 @@
         function addCurrentEntry() {
             const stationName = document.getElementById('stationName').value;
             const stationSN = document.getElementById('stationSN').value;
-            const finalUpgradeCost = "N/A";
-
-            storedData.push({ stationName, stationSN, finalUpgradeCost });
+            const startDate = new Date(document.getElementById('currentPlanStartDate').value);
+            const endDate = new Date(document.getElementById('currentPlanExpirationDate').value);
+            const currentPrice = parseFloat(document.getElementById('currentPlanPrice').value);
+            const newPrice = parseFloat(document.getElementById('newPlanPrice').value);
+            
+            if (isNaN(currentPrice) || isNaN(newPrice)) {
+                alert('Please enter valid numeric values');
+                return;
+            }
+            
+            const today = new Date();
+            const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const elapsedDays = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
+            const remainingDays = totalDays - elapsedDays;
+            
+            if (remainingDays <= 0) {
+                alert('The plan has already expired or is invalid.');
+                return;
+            }
+            
+            const proratedNewPlanCost = newPrice * (remainingDays / totalDays);
+            const proratedOldPlanRefund = currentPrice * (remainingDays / totalDays);
+            const finalUpgradeCost = proratedNewPlanCost - proratedOldPlanRefund;
+            
+            storedData.push({ stationName, stationSN, finalUpgradeCost: finalUpgradeCost.toFixed(2) });
             updateTable();
         }
 
@@ -146,7 +160,7 @@
             tableBody.innerHTML = '';
             storedData.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>${row.finalUpgradeCost}</td>`;
+                tr.innerHTML = `<td>${row.stationName}</td><td>${row.stationSN}</td><td>$${row.finalUpgradeCost}</td>`;
                 tableBody.appendChild(tr);
             });
         }
